@@ -1,0 +1,46 @@
+package HealEye
+public
+	
+	with wristband;
+	with patientstatus;
+	with computingdevice;
+	with cloud;
+	
+	device wristband
+		features
+			acc: in event data port;
+			Sp02: out event data port;
+			ecg: requires bus access patientstatus_Buses::wristband_Bus.Impl;
+			
+	end wristband;
+	
+	device implementation wristband.Impl
+	end wristband.Impl;
+	
+	
+	system HealEye
+		features
+			respiration: in event data port;
+			blood pressure: out event data port;
+			body temperature: requires bus access wristband_Buses:: computingdevice_Bus.Impl;
+		properties
+			CASE_Properties::BOUNDARY => (PHYSICAL);
+	end HealEye;
+	
+	system implementation HealEye.Impl
+		subcomponents
+			WB: system WB::WristBand.Impl;
+			PS: system PS::PatientStatus.Impl;
+			CD: device ComputingDevice.Impl;
+			CLD: bus CLD_Buses:CD_Bus.Impl;
+		connections
+			bac1: bus access WB <-> CD.UARTA;
+			bac2: bus access WB <-> CLD.UARTA;
+			bac3: bus access PS -> WB.RFA;
+			bac4: bus access CD <-> PS.WIFIA;
+			bac5: bus access CLD <-> CD.WIFIA;
+			
+			
+	end HealEye.Impl;
+	
+end HealEye;
